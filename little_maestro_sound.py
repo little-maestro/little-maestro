@@ -6,7 +6,7 @@ import os
 pygame.mixer.init()
 
 # Set the path to the downloaded sound files (make sure it's correct and path uses forward slashes or raw strings)
-SOUND_DIR = 'piano-mp3'  # Update path to only point to the root folder (piano-mp3)
+PIANO_SOUND_DIR = 'piano-mp3'  # Update path to only point to the root folder (piano-mp3)
 
 # Define a dictionary for mapping instruments to specific folders or sound sets
 instrument_map = {
@@ -20,7 +20,7 @@ def play_note_instrument(note, instrument):
 
     file_name = f"{note}.mp3"
     instrument_folder = instrument_map[instrument]
-    file_path = os.path.join(SOUND_DIR, instrument_folder, file_name)
+    file_path = os.path.join(PIANO_SOUND_DIR, instrument_folder, file_name)
     
     if os.path.exists(file_path):
         pygame.mixer.music.load(file_path)
@@ -30,6 +30,6 @@ def play_note_instrument(note, instrument):
     else:
         print(f"Error: {file_path} not found!")
 
-play_note_instrument("B5", "piano") 
+play_note_instrument("Gb5", "piano") 
 
 
