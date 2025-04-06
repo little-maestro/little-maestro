@@ -1,0 +1,28 @@
+{
+    "version": 4,
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:\\Users\\user\\OneDrive\\เอกสาร\\Arduino\\libraries\\Adafruit_NeoPixel",
+                "C:/Users/user/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "intelliSenseMode": "windows-gcc-x64",
+            "compilerPath": "C:/Users/user/AppData/Local/Arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-gcc.exe",  // Toolchain path
+            "cStandard": "c99",
+            "cppStandard": "c++11",
+            "browse": {
+                "path": [
+                    "C:/Users/user/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino"  // Core files path
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
+        }
+    ]
+}
