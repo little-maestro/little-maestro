@@ -116,7 +116,7 @@ def led(note_str, color): # I for changing intruments, Piano, Guitar, Ranad, Klu
             if octave == '3':
                 leds.append(19)
             elif octave == '5':
-                leds.append(18)
+                leds.append(18) #18 is led number
         
         # Send command if we have valid LED ids
         if leds:

@@ -2,10 +2,17 @@ import serial
 import pygame
 import time
 import os
+import RPi.GPIO as GPIO
+from Jetson_MFRC522 import SimpleMFRC522
 
 from functions import check_sequence, led
 from little_maestro_sound import play_note_instrument
 from songs import play_song
+from song_card import detect_card
+from modes import freestyle, learning, switch_to_learning, switch_to_freestyle
+
+# Initialize RFID reader
+reader = SimpleMFRC522()
 
 # Initialize Serial Communication with Arduino (Change port if needed)
 arduino = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
@@ -18,9 +25,13 @@ pygame.mixer.init()
 current_mode = "freestyle"  # Default mode
 instrument = "piano"  # Default instrument
 
+# Paths for sound files
+PIANO_SOUND_DIR = 'piano-mp3'
+    
+
 def listen_to_buttons():
     """Continuously listens for button presses from Arduino and responds accordingly."""
-    global current_mode
+    global mode
 
     while True:
         if arduino.in_waiting > 0:
@@ -55,14 +66,9 @@ def handle_note_input(note):
 def main():
     """Main function to start the game."""
     print("Smart Music Toy Started!")
-    listen_to_buttons()
+    freestyle() #starts in freestyle mode
 
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Exiting...")
-        arduino.close()
-        pygame.quit()
+if __name__ == "__main__": #main program loop
+    freestyle_mode()
 
-# yung mai dai fix na ja
+    
