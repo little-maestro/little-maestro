@@ -136,7 +136,7 @@ void detectNote() {
           Serial.println(note);
         } else if (r == 3) {  // Row 4 functionality (special buttons)
           if (c == 0) {
-            Serial.println("o"); // For future function (if any)
+            Serial.println("record_stop"); // For future function (if any)
           } else if (c == 3) {
             Serial.println("I"); // Change Instrument
           }

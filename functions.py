@@ -3,53 +3,28 @@ import time
 import pygame
 import os
 
+from songs import songs
+
 # Sound setup
 # Initialize pygame mixer
 pygame.mixer.init()
-# Set the path to the downloaded sound files (make sure it's correct and path uses forward slashes or raw strings)
-PIANO_SOUND_DIR = 'piano-mp3'  # Update path to only point to the root folder (piano-mp3)
-# Define a dictionary for mapping instruments to specific folders or sound sets
-instrument_map = {
-    "piano": ''
-}
 
-instrument = ["piano", "guitar", "ranad", "klui"]
+# Serial communication setup (change the port if needed)
+arduino = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
+time.sleep(2)  # Give Arduino time to reset
+
+
+
+tempo = 10
+instrument = ["piano", "guitar", "violin", "flute"]
 instrument_index = 0
 current_instrument = instrument[instrument_index]
 
-def change_instrument():
-    try:
-        while True:
-            arduino.write(b'check note\n')
-            line = arduino.readline().decode('utf-8').strip()
-
-            if not line:
-                continue
-
-            if not line.startswith("Note"):
-
-                if len(line) > 1:
-                    raise ValueError(f"Malformed command message: '{line}'")
-
-                if line == "I":
-                    if instrument_index == 3:
-                        instrument_index = 0
-                    else:
-                        instrument_index += 1
-                    current_instrument = instrument[instrument_index]
-                    print(f"Change instrument to '{current_instrument}'")
-                    return
-                elif line == "o":
-                    print('New feature activated')
-                    return
-                
-            else:
-                print(f"[INFO] Unrecognized serial message: '{line}'")
-
-    except Exception as e:
-        print(f"[ERROR] check_sequence failed: {e}")
-
-note_to_led = {
+led_name_to_id = {
+    "piano": 1,
+    "guitar": 2,
+    "violin": 3,
+    "flute": 4,
     "C": 5,
     "C#": 6,
     "D": 7,
@@ -61,47 +36,35 @@ note_to_led = {
     "G#": 13,
     "A": 14,
     "A#": 15,
-    "B": 16
+    "B": 16,
+    "record_stop": 17,
+    "up": 18,
+    "down": 19,
+    "I": 20
 }
 
-def play_song(song_name, instrument, tempo):
+def play_note(note):
+    file_name = f"{note}.mp3"
+    instrument_folder = current_instrument + "_directory"
+    file_path = os.path.join(instrument_folder, file_name)
+        
+    if os.path.exists(file_path):
+        pygame.mixer.Sound(file_path).play()
+        print(f"Playing: {current_instrument} - {note}")
+        time.sleep(tempo)  # Adjust delay based on tempo
+
+    else:
+        print(f"Error: {file_path} not found!")
+
+
+def play_song(song_name):
     if song_name not in songs:
         print("Song not found!")
         return
 
     for note in songs[song_name]:
-        file_path = os.path.join(PIANO_SOUND_DIR, instrument_map[instrument], f"{note}.mp3")
-        
-        if os.path.exists(file_path):
-            pygame.mixer.Sound(file_path).play()
-            print(f"Playing: {note}")
-            time.sleep(tempo)  # Adjust delay based on tempo
+        play_note(note)
 
-        else:
-            print(f"Error: {file_path} not found!")
-
-def play_note_instrument(note, instrument):
-    if instrument not in instrument_map:
-        print(f"Error: {instrument} not found in instrument map!")
-        return
-
-    file_name = f"{note}.mp3"
-    instrument_folder = instrument_map[instrument]
-    file_path = os.path.join(PIANO_SOUND_DIR, instrument_folder, file_name)
-    
-    if os.path.exists(file_path):
-        pygame.mixer.music.load(file_path)
-        pygame.mixer.music.play()
-        print(f"Playing {instrument} - {note}")
-        time.sleep(2)  # <-- This is essential to keep the sound playing
-    else:
-        print(f"Error: {file_path} not found!")
-
-play_note_instrument("Gb5", "piano") 
-
-# Serial communication setup (change the port if needed)
-arduino = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
-time.sleep(2)  # Give Arduino time to reset
 
 
 def check_sequence(song_name, note_sequence):
@@ -121,7 +84,7 @@ def check_sequence(song_name, note_sequence):
 
                 note = note_info[1]  # Get the note (e.g., "C")
                 # Play the corresponding note sound
-                play_note_instrument(note, instrument)
+                play_note(note)
 
                 # Check correctness
                 if note == songs[song_name][note_sequence]:
@@ -136,39 +99,32 @@ def check_sequence(song_name, note_sequence):
     except Exception as e:
         print(f"[ERROR] check_sequence failed: {e}")
 
-def led(note_str, color): # I for changing intruments, Piano, Guitar, Ranad, Klui for instrument indicating LEDs
+def led(led_name, color): # I for changing intruments, Piano, Guitar, Ranad, Klui for instrument indicating LEDs
     leds = []
 
     try: 
-        if note_str == "I":
-            leds = [20]  # Instrument change
-        elif note_str.lower() == "piano":
-            leds = [1]
-        elif note_str.lower() == "guitar":
-            leds = [2]
-        elif note_str.lower() == "ranad":
-            leds = [3]
-        elif note_str.lower() == "klui":
-            leds = [4]
-        else:
-            if len(note_str) < 2:
-                raise ValueError(f"Invalid note format: '{note_str}'")
-            
-            pitch = note_str[:-1]  # Extract note name, e.g., "C", "C#"
-            octave = note_str[-1]  # Extract octave digit
+        if led_name in instrument or led_name == 'I' or led_name == "record_stop":
+            leds.append(led_name_to_id(led_name))
 
-            if pitch not in note_to_led:
-                raise ValueError(f"Unknown pitch: '{pitch}'")
+        elif len(led_name) < 2:
+            raise ValueError(f"Invalid note format: '{led_name}'")
+
+        else: 
+            pitch = led_name[:-1]  # Extract note name, e.g., "C", "C#"
+            octave = led_name[-1]  # Extract octave digit
+
+            if pitch not in led_name_to_id:
+                raise ValueError(f"Unknown pitch: '{led_name} -- {pitch}'")
             
             if octave not in ('3', '4', '5'):
-                raise ValueError(f"Unsupported octave: '{octave}'")
+                raise ValueError(f"Unsupported octave: '{led_name} -- {octave}'")
             
             # Add corresponding LEDs
-            leds.append(note_to_led[pitch])
+            leds.append(led_name_to_id[pitch])
             if octave == '3':
-                leds.append(19)
+                leds.append(led_name_to_id("down"))
             elif octave == '5':
-                leds.append(18) #18 is led number
+                leds.append(led_name_to_id("up")) #18 is led number
         
         # Send command if we have valid LED ids
         if leds:
@@ -180,7 +136,7 @@ def led(note_str, color): # I for changing intruments, Piano, Guitar, Ranad, Klu
             print("No valid LEDs determined from input.")
 
     except Exception as e:
-        print(f"[ERROR] LED command failed for '{note_str}': {e}")
+        print(f"[ERROR] LED command failed for '{led_name}': {e}")
 
 
 import RPi.GPIO as GPIO
@@ -206,7 +162,7 @@ def detect_card():
         print(f"Card Detected: {song_name}")
 
         if song_name in songs:
-            learning_mode(song_name)
+            learning(song_name)
         else:
             print(f"[ERROR] Song '{song_name}' not found! Returning to freestyle.")
             mode = "freestyle"
@@ -216,26 +172,108 @@ def detect_card():
 
 def freestyle():
     global mode
-    print("[MODE] Freestyle Mode")
-    while True:
-        arduino.write(b'get_note\n')  # Ask Arduino for pressed note
+
+    try:
+        arduino.write(b'check note\n')  # Ask Arduino for pressed note
         line = arduino.readline().decode('utf-8').strip()
         
-        if line == "CARD_DETECTED":  
-            return detect_card()  # Switch mode if a card is detected
+        if not line:
+            time.sleep(0.5)
+
+        elif line == "record_stop":
+            record()
         
-        if line.startswith("Note"):
+        elif line.startswith("Note"):
             note = line.split()[1]
             play_note(note)
+        
+        elif line == "I":
+            if instrument_index == 3:
+                instrument_index = 0
+            else:
+                instrument_index += 1
+            current_instrument = instrument[instrument_index]
+            led(current_instrument, "WHITE")
+            print(f"Change instrument to '{current_instrument}'")
+        
+        else:
+            print(f"[INFO] Unrecognized serial message: '{line}'")
 
-def learning():
+    except Exception:
+        print("[INFO] some error.")
+
+def record():
+    recorded_song = []
+    record = True
+    playing = False
+    led()
+    while not playing:
+        while record:
+            arduino.write(b'check note\n')  # Ask Arduino for pressed note
+            recording_note_line = arduino.readline().decode('utf-8').strip()
+
+            if not recording_note_line:
+                time.sleep(0.5)
+
+            elif recording_note_line.startswith("Note"):
+                note = recording_note_line.split()[1]
+                recorded_song.append(note)
+                play_note(note)
+                
+            elif recording_note_line == ("record_stop"):
+                record = False
+                print("[INFO] Stop recording")
+            
+            elif recording_note_line == "I":
+                if instrument_index == 3:
+                    instrument_index = 0
+                else:
+                    instrument_index += 1
+                current_instrument = instrument[instrument_index]
+                led(current_instrument, "WHITE")
+                print(f"Change instrument to '{current_instrument}'")
+
+            else:
+                print(f"[INFO] Unrecognized serial message: '{recording_note_line}'")
+
+        arduino.write(b'check note\n')  # Ask Arduino for pressed note
+        line = arduino.readline().decode('utf-8').strip()
+
+        if not line:
+            time.sleep(0.5)
+        elif line.startswith("Note"):
+            note = line.split()[1]
+            play_note(note)
+        
+        elif line == ("record_stop"):
+            playing = True
+            print("[INFO] Start playing recorded song")
+        
+        elif recording_note_line == "I":
+            if instrument_index == 3:
+                instrument_index = 0
+            else:
+                instrument_index += 1
+            current_instrument = instrument[instrument_index]
+            led(current_instrument, "WHITE")
+            print(f"Change instrument to '{current_instrument}'")
+
+        else:
+            print(f"[INFO] Unrecognized serial message: '{line}'")
+
+    for notes in recorded_song:
+        play_note(notes)
+
+def learning(song_name):
     print("[MODE] Learning Mode")
-    arduino.write(b'get_song_name\n')  # Request song name from arduino !!! fixxxxx
-    song_name = arduino.readline().decode('utf-8').strip()
 
     if song_name in songs:
         print(f"[INFO] Learning {song_name}")
-        check_sequence(song_name, note_sequence=)  # Start guiding user through the song
+
+        # level1()
+        # level2()
+        # level3()
+        check_sequence(song_name, note_sequence)  # Start guiding user through the song
     else:
         print("[ERROR] Invalid song detected")
         switch_to_freestyle()

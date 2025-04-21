@@ -6,6 +6,7 @@ import RPi.GPIO as GPIO
 from Jetson_MFRC522 import SimpleMFRC522
 
 from functions import check_sequence, led, play_note_instrument, detect_card, freestyle, learning, play_song
+from songs import songs
 
 # Initialize RFID reader
 reader = SimpleMFRC522()
@@ -31,10 +32,15 @@ while True:
     try:
         id, text = reader.read()  # Blocking call
         song_name = text.strip()
-        learning(song_name)
+        print(f"Card Detected: {song_name}")
+
+        if song_name in songs:
+            learning(song_name)
+        else:
+            print(f"[ERROR] Song '{song_name}' not found! Returning to freestyle.")
     except Exception:
         print("[INFO] No card detected, going Freestyle.")
-        freestyle()
+    freestyle()
 
     time.sleep(0.5)
 

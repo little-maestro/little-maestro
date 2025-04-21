@@ -16,7 +16,7 @@ songs = {
                      "G4", "G4", "F4", "D4", "C4"]
 }
 
-instrument_map = {"piano": ""}
+
 
 PIANO_SOUND_DIR = 'piano-mp3'
 
