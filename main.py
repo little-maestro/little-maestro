@@ -5,9 +5,7 @@ import os
 import RPi.GPIO as GPIO
 from Jetson_MFRC522 import SimpleMFRC522
 
-from functions import check_sequence, led, play_note_instrument, detect_card
-from songs import play_song
-from modes import freestyle, learning
+from functions import check_sequence, led, play_note_instrument, detect_card, freestyle, learning, play_song
 
 # Initialize RFID reader
 reader = SimpleMFRC522()
@@ -19,9 +17,10 @@ time.sleep(2)  # Give Arduino time to reset
 # Initialize Pygame for Sound
 pygame.mixer.init()
 
+
 # Defaults
 current_mode = "freestyle"  # Default mode
-instrument = "piano"  # Default instrument
+current_instrument = "piano"  # Default instrument
 
 # Paths for sound files
 PIANO_SOUND_DIR = 'piano-mp3'
