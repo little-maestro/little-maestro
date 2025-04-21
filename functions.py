@@ -87,7 +87,7 @@ def check_sequence(song_name, note_index):
 
                 # Check correctness
                 if note == songs[song_name][note_index]:
-                    print('Corect')
+                    print('Correct')
                     return
                 elif line != songs[song_name][note_index]:
                     print('Incorrect')
@@ -269,10 +269,50 @@ def learning(song_name):
     if song_name in songs:
         print(f"[INFO] Learning {song_name}")
 
-        # level1()
-        # level2()
-        # level3()
-        check_sequence(song_name, note_sequence)  # Start guiding user through the song
+        # ======== LEVEL 1 ========
+        print('Level 1')
+        while True:
+            success=True
+            for i in range(len(songs[song_name])):
+                led_command = f"LED {i+1} GREEN\n" 
+                arduino.write(led_command.encode())
+                result=check_sequence(song_name, i)
+                if not result:
+                    print("[LEVEL 1] Wrong note, restarting level.")
+                    success = False
+                    break
+            if success:
+                print("[LEVEL 1] Complete! Moving to level 2.")
+                break
+                
+    #===== LEVEL 2 =====
+        play_song(song_name)
+        while True:
+            success = True
+            for i in range(len(songs[song_name])):
+                led_command = f"LED {i+1} BLUE\n"
+                arduino.write(led_command.encode())
+                result = check_sequence(song_name, i)
+                if not result:
+                    print("[LEVEL 2] Wrong note, restarting level.")
+                    success = False
+                    break
+            if success:
+                print("[LEVEL 2] Complete! Moving to level 3.")
+                break
+    #===== LEVEL 3 =====
+        play_song(song_name)
+        while True:
+            success=True
+            for i in range(len(songs[song_name])):
+                result=check_sequence(song_name,i)
+                if not result:
+                    print("[LEVEL 3] Wrong note, restarting level.")
+                    success = False
+                    break
+            if success:
+                print("Congratulations")
+                return
+
     else:
         print("[ERROR] Invalid song detected")
-        switch_to_freestyle()
