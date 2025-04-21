@@ -20,20 +20,3 @@ instrument_map = {"piano": ""}
 
 PIANO_SOUND_DIR = 'piano-mp3'
 
-def play_song(song_name, instrument, tempo):
-    if song_name not in songs:
-        print("Song not found!")
-        return
-
-    for note in songs[song_name]:
-        file_path = os.path.join(PIANO_SOUND_DIR, instrument_map[instrument], f"{note}.mp3")
-        
-        if os.path.exists(file_path):
-            pygame.mixer.Sound(file_path).play()
-            print(f"Playing: {note}")
-            time.sleep(tempo)  # Adjust delay based on tempo
-
-        else:
-            print(f"Error: {file_path} not found!")
-
-play_song("HBD", "piano", 0.4)

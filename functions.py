@@ -12,6 +12,43 @@ PIANO_SOUND_DIR = 'piano-mp3'  # Update path to only point to the root folder (p
 instrument_map = {
     "piano": ''
 }
+
+instrument = ["piano", "guitar", "ranad", "klui"]
+instrument_index = 0
+current_instrument = instrument[instrument_index]
+
+def change_instrument():
+    try:
+        while True:
+            arduino.write(b'check note\n')
+            line = arduino.readline().decode('utf-8').strip()
+
+            if not line:
+                continue
+
+            if not line.startswith("Note"):
+
+                if len(line) > 1:
+                    raise ValueError(f"Malformed command message: '{line}'")
+
+                if line == "I":
+                    if instrument_index == 3:
+                        instrument_index = 0
+                    else:
+                        instrument_index += 1
+                    current_instrument = instrument[instrument_index]
+                    print(f"Change instrument to '{current_instrument}'")
+                    return
+                elif line == "o":
+                    print('New feature activated')
+                    return
+                
+            else:
+                print(f"[INFO] Unrecognized serial message: '{line}'")
+
+    except Exception as e:
+        print(f"[ERROR] check_sequence failed: {e}")
+
 note_to_led = {
     "C": 5,
     "C#": 6,
@@ -27,6 +64,21 @@ note_to_led = {
     "B": 16
 }
 
+def play_song(song_name, instrument, tempo):
+    if song_name not in songs:
+        print("Song not found!")
+        return
+
+    for note in songs[song_name]:
+        file_path = os.path.join(PIANO_SOUND_DIR, instrument_map[instrument], f"{note}.mp3")
+        
+        if os.path.exists(file_path):
+            pygame.mixer.Sound(file_path).play()
+            print(f"Playing: {note}")
+            time.sleep(tempo)  # Adjust delay based on tempo
+
+        else:
+            print(f"Error: {file_path} not found!")
 
 def play_note_instrument(note, instrument):
     if instrument not in instrument_map:
@@ -129,3 +181,61 @@ def led(note_str, color): # I for changing intruments, Piano, Guitar, Ranad, Klu
 
     except Exception as e:
         print(f"[ERROR] LED command failed for '{note_str}': {e}")
+
+
+import RPi.GPIO as GPIO
+import sys
+from Jetson_MFRC522 import SimpleMFRC522
+
+reader = SimpleMFRC522()
+print("Place your RFID card...")
+try:
+    id, text = reader.read()
+    print(f"ID: {id}, Text: {text}")
+finally:
+    GPIO.cleanup()
+
+
+def detect_card():
+    global mode
+    print("Insert card")
+    
+    try:
+        id, text = reader.read()
+        song_name = text.strip()
+        print(f"Card Detected: {song_name}")
+
+        if song_name in songs:
+            learning_mode(song_name)
+        else:
+            print(f"[ERROR] Song '{song_name}' not found! Returning to freestyle.")
+            mode = "freestyle"
+
+    finally:
+        GPIO.cleanup()  # Clean up GPIO to prevent issues
+
+def freestyle():
+    global mode
+    print("[MODE] Freestyle Mode")
+    while True:
+        arduino.write(b'get_note\n')  # Ask Arduino for pressed note
+        line = arduino.readline().decode('utf-8').strip()
+        
+        if line == "CARD_DETECTED":  
+            return detect_card()  # Switch mode if a card is detected
+        
+        if line.startswith("Note"):
+            note = line.split()[1]
+            play_note(note)
+
+def learning():
+    print("[MODE] Learning Mode")
+    arduino.write(b'get_song_name\n')  # Request song name from arduino !!! fixxxxx
+    song_name = arduino.readline().decode('utf-8').strip()
+
+    if song_name in songs:
+        print(f"[INFO] Learning {song_name}")
+        check_sequence(song_name, note_sequence=)  # Start guiding user through the song
+    else:
+        print("[ERROR] Invalid song detected")
+        switch_to_freestyle()
