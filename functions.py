@@ -66,8 +66,7 @@ def play_song(song_name):
         play_note(note)
 
 
-
-def check_sequence(song_name, note_sequence):
+def check_sequence(song_name, note_index):
     try:
         while True:
             arduino.write(b'check note\n')
@@ -87,10 +86,10 @@ def check_sequence(song_name, note_sequence):
                 play_note(note)
 
                 # Check correctness
-                if note == songs[song_name][note_sequence]:
+                if note == songs[song_name][note_index]:
                     print('Corect')
                     return
-                elif line != songs[song_name][note_sequence]:
+                elif line != songs[song_name][note_index]:
                     print('Incorrect')
                     return
                 
