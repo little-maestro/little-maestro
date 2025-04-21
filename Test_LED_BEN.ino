@@ -1,3 +1,4 @@
+@ -1,57 +1,152 @@
 #include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
 
@@ -25,9 +26,9 @@ uint32_t getColor(String color) {
 const int rowPins[4] = {2, 3, 4, 5};  // Row pins (outputs)
 const int colPins[4] = {12, 11, 10, 8};  // Column pins (inputs)
 char notes[3][4] = {  // Musical notes layout for rows 1-3
-  {'C', 'Db', 'D', 'Eb'},
-  {'E', 'F', 'Gb', 'G'},
-  {'Ab', 'A', 'Bb', 'B'}
+  {'C', 'C#', 'D', 'D#'},
+  {'E', 'F', 'F#', 'G'},
+  {'G#', 'A', 'A#', 'B'}
 };
 
 const int shiftButtonUpPin = 11;   // Octave up button (column 2, row 4)
@@ -53,7 +54,6 @@ void setup() {
     pinMode(colPins[i], INPUT_PULLUP);
   }
 }
-
 
 void writeLED(String input) {
   int firstSpace = input.indexOf(" ");
@@ -150,3 +150,4 @@ void loop() {
     }
   }
 }
+
