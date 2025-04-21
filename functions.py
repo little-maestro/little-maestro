@@ -1,4 +1,4 @@
-import serial
+
 import time
 import pygame
 import os
@@ -9,13 +9,30 @@ from songs import songs
 # Initialize pygame mixer
 pygame.mixer.init()
 
-# Serial communication setup (change the port if needed)
-arduino = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
-time.sleep(2)  # Give Arduino time to reset
 
+try:
+    import serial
+except ImportError:
+    print("pyserial is not installed.") # pip install pyserial 
+    serial = None
 
+arduino = None
+if serial:
+    try:
+        arduino = serial.Serial('/dev/ttyUSB0', 9600, timeout=1) # check and update port number
+        time.sleep(2)  # Give Arduino time to reset
+        print("Connected to Arduino.")
+    except serial.SerialException:
+        print("Not connected to an Arduino.")
 
-tempo = 10
+try:
+    import Jetson.GPIO as GPIO
+    from Jetson_MFRC522 import SimpleMFRC522
+    reader = SimpleMFRC522()
+except (ImportError, RuntimeError):
+    print("Running on non-Jetson system")
+
+tempo = 0.5
 instrument = ["piano", "guitar", "violin", "flute"]
 instrument_index = 0
 current_instrument = instrument[instrument_index]
@@ -50,36 +67,39 @@ def play_note(note):
         
     if os.path.exists(file_path):
         pygame.mixer.Sound(file_path).play()
-        print(f"Playing: {current_instrument} - {note}")
+        print(f"[INFO] Playing: {current_instrument} - {note}")
         time.sleep(tempo)  # Adjust delay based on tempo
 
     else:
-        print(f"Error: {file_path} not found!")
+        raise ValueError(f"play_note, Error: {file_path} not found!")
 
 
 def play_song(song_name):
     if song_name not in songs:
-        print("Song not found!")
+        print(f"[Error] play_song, '{song_name}' not found!")
         return
-
+    
+    print(f"[INFO] play_song, Playing {song_name} with {current_instrument}")
     for note in songs[song_name]:
         play_note(note)
-
+    print(f"[INFO] play_song, '{song_name}' ended")
 
 def check_sequence(song_name, note_index):
     try:
+        print(f"[INFO] check_sequence, checking note {note_index + 1} in {song_name}, {songs[song_name][note_index]}")
         while True:
             arduino.write(b'check note\n')
             line = arduino.readline().decode('utf-8').strip()
 
             if not line:
+                time.sleep(0.1)
                 continue
 
             if line.startswith("Note"):
                 note_info = line.split()  # Split the note info (e.g., "Note CU)")
 
                 if len(note_info) < 2:
-                    raise ValueError(f"Malformed note message: '{line}'")
+                    raise ValueError(f"check_sequence, malformed note message: '{line}'")
 
                 note = note_info[1]  # Get the note (e.g., "C")
                 # Play the corresponding note sound
@@ -87,26 +107,25 @@ def check_sequence(song_name, note_index):
 
                 # Check correctness
                 if note == songs[song_name][note_index]:
-                    print('Correct')
-                    return
+                    print("[INFO] check_sequence, 'Correct'")
+                    return True
                 elif line != songs[song_name][note_index]:
-                    print('Incorrect')
-                    return
+                    print("[INFO] check_sequence, 'Incorrect'")
+                    return False
                 
             else:
-                print(f"[INFO] Unrecognized serial message: '{line}'")
+                print(f"[ERROR] check_sequence, unrecognized serial message: '{line}'")
     except Exception as e:
         print(f"[ERROR] check_sequence failed: {e}")
 
-def led(led_name, color): # I for changing intruments, Piano, Guitar, Ranad, Klui for instrument indicating LEDs
+def led(led_name, color): # I for changing intruments, piano, guitar, violin, flute for instrument indicating LEDs
     leds = []
-
     try: 
         if led_name in instrument or led_name == 'I' or led_name == "record_stop":
             leds.append(led_name_to_id(led_name))
 
         elif len(led_name) < 2:
-            raise ValueError(f"Invalid note format: '{led_name}'")
+            raise ValueError(f"led, Invalid note format: '{led_name}'")
 
         else: 
             pitch = led_name[:-1]  # Extract note name, e.g., "C", "C#"
@@ -138,48 +157,30 @@ def led(led_name, color): # I for changing intruments, Piano, Guitar, Ranad, Klu
         print(f"[ERROR] LED command failed for '{led_name}': {e}")
 
 
-import RPi.GPIO as GPIO
-import sys
-from Jetson_MFRC522 import SimpleMFRC522
-
-reader = SimpleMFRC522()
-print("Place your RFID card...")
-try:
-    id, text = reader.read()
-    print(f"ID: {id}, Text: {text}")
-finally:
-    GPIO.cleanup()
 
 
 def detect_card():
-    global mode
-    print("Insert card")
-    
     try:
         id, text = reader.read()
         song_name = text.strip()
-        print(f"Card Detected: {song_name}")
 
-        if song_name in songs:
-            learning(song_name)
-        else:
-            print(f"[ERROR] Song '{song_name}' not found! Returning to freestyle.")
-            mode = "freestyle"
+        if id == 0:
+            return
+        
+        print(f"[INFO] Card Detected: {song_name}")
+        learning(song_name)
 
-    finally:
-        GPIO.cleanup()  # Clean up GPIO to prevent issues
+    except Exception as e:
+        print(f"[ERROR] {e}")
 
 def freestyle():
-    global mode
+    global current_instrument, instrument_index
 
     try:
         arduino.write(b'check note\n')  # Ask Arduino for pressed note
         line = arduino.readline().decode('utf-8').strip()
         
-        if not line:
-            time.sleep(0.5)
-
-        elif line == "record_stop":
+        if line == "record_stop":
             record()
         
         elif line.startswith("Note"):
@@ -187,43 +188,43 @@ def freestyle():
             play_note(note)
         
         elif line == "I":
+            led(current_instrument,"off")
             if instrument_index == 3:
                 instrument_index = 0
             else:
                 instrument_index += 1
             current_instrument = instrument[instrument_index]
             led(current_instrument, "WHITE")
-            print(f"Change instrument to '{current_instrument}'")
+            print(f"[INFO] Change instrument to '{current_instrument}'")
         
         else:
-            print(f"[INFO] Unrecognized serial message: '{line}'")
+            print(f"[ERROR] Unrecognized serial message: '{line}'")
 
-    except Exception:
-        print("[INFO] some error.")
+    except Exception as e:
+        print(f"[ERROR] {e}")
 
 def record():
+    global current_instrument, instrument_index
     recorded_song = []
     record = True
     playing = False
-    led()
     while not playing:
+        print("[INFO] Start recording")
+        led("record_stop","red")
         while record:
             arduino.write(b'check note\n')  # Ask Arduino for pressed note
             recording_note_line = arduino.readline().decode('utf-8').strip()
 
             if not recording_note_line:
-                time.sleep(0.5)
+                time.sleep(0.1)
 
             elif recording_note_line.startswith("Note"):
                 note = recording_note_line.split()[1]
                 recorded_song.append(note)
-                play_note(note)
-                
-            elif recording_note_line == ("record_stop"):
-                record = False
-                print("[INFO] Stop recording")
+                play_note(note) # included time.sleep(tempo)
             
             elif recording_note_line == "I":
+                led(current_instrument,"off")
                 if instrument_index == 3:
                     instrument_index = 0
                 else:
@@ -231,6 +232,11 @@ def record():
                 current_instrument = instrument[instrument_index]
                 led(current_instrument, "WHITE")
                 print(f"Change instrument to '{current_instrument}'")
+            
+            elif recording_note_line == ("record_stop"):
+                record = False
+                print("[INFO] Stop recording")
+                led("record_stop","yellow") # indicates that there is a recorded song 
 
             else:
                 print(f"[INFO] Unrecognized serial message: '{recording_note_line}'")
@@ -239,16 +245,14 @@ def record():
         line = arduino.readline().decode('utf-8').strip()
 
         if not line:
-            time.sleep(0.5)
+            time.sleep(0.1)
+
         elif line.startswith("Note"):
             note = line.split()[1]
             play_note(note)
         
-        elif line == ("record_stop"):
-            playing = True
-            print("[INFO] Start playing recorded song")
-        
         elif recording_note_line == "I":
+            led(current_instrument,"off")
             if instrument_index == 3:
                 instrument_index = 0
             else:
@@ -257,11 +261,18 @@ def record():
             led(current_instrument, "WHITE")
             print(f"Change instrument to '{current_instrument}'")
 
+        elif line == ("record_stop"):
+            playing = True
+            print("[INFO] Start playing recorded song")
+            led("record_stop","green")
+
         else:
-            print(f"[INFO] Unrecognized serial message: '{line}'")
+            print(f"[ERROR] record, Unrecognized serial message: '{line}'")
 
     for notes in recorded_song:
         play_note(notes)
+    led("record_stop","off")
+    print("return to freestyle mode")
 
 def learning(song_name):
     print("[MODE] Learning Mode")
@@ -274,8 +285,8 @@ def learning(song_name):
         while True:
             success=True
             for i in range(len(songs[song_name])):
-                led_command = f"LED {i+1} GREEN\n" 
-                arduino.write(led_command.encode())
+                led_command = f"LED {i+1} GREEN\n"  # can use led(songs[song_name][i],"green") 
+                arduino.write(led_command.encode()) # ex. note A5 button A and UP will lit up
                 result=check_sequence(song_name, i)
                 if not result:
                     print("[LEVEL 1] Wrong note, restarting level.")
@@ -312,7 +323,20 @@ def learning(song_name):
                     break
             if success:
                 print("Congratulations")
-                return
+                print("remove song card to continue")
+                break
+        while True:
+            try:
+                id, text = reader.read()
+
+                if id == 0:
+                    print("enter freestyle mode")
+                    return
+        
+                time.sleep(0.1)
+
+            except Exception as e:
+                print(f"[ERROR] {e}")
 
     else:
         print("[ERROR] Invalid song detected")
