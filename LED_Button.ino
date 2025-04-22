@@ -24,10 +24,10 @@ uint32_t getColor(String color) {
 // Button reader setup
 const int rowPins[4] = {2, 3, 4, 5};  // Row pins (outputs)
 const int colPins[4] = {12, 11, 10, 8};  // Column pins (inputs)
-char notes[3][4] = {  // Musical notes layout for rows 1-3
-  {'C', 'Db', 'D', 'Eb'},
-  {'E', 'F', 'Gb', 'G'},
-  {'Ab', 'A', 'Bb', 'B'}
+String notes[3][4] = {  // Musical notes layout for rows 1-3
+  {"C", "Db", "D", "Eb"},
+  {"E", "F", "Gb", "G"},
+  {"Ab", "A", "Bb", "B"}
 };
 
 const int shiftButtonUpPin = 11;   // Octave up button (column 2, row 4)
@@ -91,15 +91,6 @@ void detectNote() {
   octaveShiftUp = (digitalRead(shiftButtonUpPin) == LOW);  // Button pressed means LOW
   octaveShiftDown = (digitalRead(shiftButtonDownPin) == LOW);  // Button pressed means LOW
   digitalWrite(rowPins[3], HIGH); // Set row 4 to HIGH (deactivate)
-
-  // Indicate current octave shift state
-  if (octaveShiftUp) {
-    Serial.println("Octave shift: Up");
-  } else if (octaveShiftDown) {
-    Serial.println("Octave shift: Down");
-  } else {
-    Serial.println("Octave shift: Neutral");
-  }
 
   // Loop through the rows (1 to 3 for notes, 4 for shift functionality)
   for (int r = 0; r < 4; r++) {
