@@ -63,7 +63,7 @@ led_name_to_id = {
 def play_note(note):
     file_name = f"{note}.mp3"
     instrument_folder = current_instrument + "_directory"
-    file_path = os.path.join(instrument_folder, file_name)
+    file_path = os.path.join(little_maestro,instrument_folder, file_name)
         
     if os.path.exists(file_path):
         pygame.mixer.Sound(file_path).play()
