@@ -1,12 +1,12 @@
-from Jetson_MFRC522 import SimpleMFRC522
-import time
+import RPi.GPIO as GPIO
+from mfrc522 import SimpleMFRC522
 
-# Initialize the reader
 reader = SimpleMFRC522()
 
 try:
-    print("Place your RFID card...")
+    print("Place your RFID tag near the reader...")
     id, text = reader.read()
-    print(f"ID: {id}, Text: {text}")
-except Exception as e:
-    print(f"Error: {e}")
+    print(f"ID: {id}")
+    print(f"Text: {text}")
+finally:
+    GPIO.cleanup()
