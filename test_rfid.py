@@ -17,8 +17,7 @@ spi.max_speed_hz = 50000  # SPI speed, you can adjust this as needed
 spi.mode = 0b00  # SPI Mode 0 (CPOL=0, CPHA=0)
 
 # Initialize the MFRC522 reader
-#old code### reader = SimpleMFRC522()
-reader = SimpleMFRC522(rst_pin=26, cs_pin=24) # Example - check library syntax
+reader = SimpleMFRC522()
 
 # Example loop to read an RFID tag
 try:
