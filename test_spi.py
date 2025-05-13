@@ -8,7 +8,7 @@ spi = spidev.SpiDev()
 spi.open(0, 0)  # Bus 0, Device 0
 
 # Set SPI speed and mode
-spi.max_speed_hz = 50000  # 50 kHz speed (adjust as necessary)
+spi.max_speed_hz = 10000  # 50 kHz speed (adjust as necessary)
 spi.mode = 0b00  # SPI Mode 0 (CPOL=0, CPHA=0)
 
 # Function to test SPI communication
