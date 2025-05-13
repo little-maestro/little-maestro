@@ -1,6 +1,9 @@
+#testing the buttons connect from arduino to jetson
+
 import serial
 import time
 
+from serial import Serial
 # Replace with your actual device path (check with `ls /dev/ttyUSB*` or `ls /dev/ttyACM*`)
 serial_port = "/dev/ttyUSB0"
 baud_rate = 9600

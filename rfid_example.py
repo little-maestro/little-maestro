@@ -1,3 +1,5 @@
+#example of rfid code from reddit
+
 from time import sleep
 import sys
 from Jetson_MFRC522 import SimpleMFRC522
