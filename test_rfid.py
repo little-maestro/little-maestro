@@ -1,4 +1,4 @@
-import RPi.GPIO as GPIO
+import Jetson.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
 
 # Set up GPIO
