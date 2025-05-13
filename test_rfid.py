@@ -4,11 +4,11 @@ import time
 from mfrc522 import SimpleMFRC522
 
 # Set up GPIO mode (BCM refers to GPIO pin numbering)
-GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BOARD)
 
 # Set up the GPIO pins for MFRC522
-GPIO.setup(7, GPIO.OUT)  # RST Pin (reset pin, connected to GPIO 7, physical pin 26)
-GPIO.setup(8, GPIO.OUT)  # CS Pin (Chip Select, connected to GPIO 8, physical pin 24)
+GPIO.setup(26, GPIO.OUT)  # RST Pin (reset pin, connected to GPIO 7, physical pin 26)
+GPIO.setup(24, GPIO.OUT)  # CS Pin (Chip Select, connected to GPIO 8, physical pin 24)
 
 # Initialize SPI (using SPI0, bus 0, device 0)
 spi = spidev.SpiDev()
@@ -17,7 +17,8 @@ spi.max_speed_hz = 50000  # SPI speed, you can adjust this as needed
 spi.mode = 0b00  # SPI Mode 0 (CPOL=0, CPHA=0)
 
 # Initialize the MFRC522 reader
-reader = SimpleMFRC522()
+#old code### reader = SimpleMFRC522()
+reader = SimpleMFRC522(rst_pin=26, cs_pin=24) # Example - check library syntax
 
 # Example loop to read an RFID tag
 try:
