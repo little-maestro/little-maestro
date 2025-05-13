@@ -5,7 +5,7 @@ import time
 spi = spidev.SpiDev()
 
 # Open SPI bus 0, device 0 (corresponding to /dev/spidev0.0)
-spi.open(1, 0)  # Bus 0, Device 0
+spi.open(0, 1)  # Bus 0, Device 0
 
 # Set SPI speed and mode
 spi.max_speed_hz = 10000  # 50 kHz speed (adjust as necessary)
