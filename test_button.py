@@ -21,7 +21,7 @@ try:
         while arduino.in_waiting:
             line = arduino.readline().decode("utf-8").strip()
             if line:
-                print(f"Arduino says: {line}")
+                print("Arduino says: {line}")
 
         time.sleep(0.5)  # Avoid flooding serial
 except KeyboardInterrupt:
