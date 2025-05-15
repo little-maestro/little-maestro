@@ -70,6 +70,7 @@ void loop() {
 	String data = "";
 	data = dump_byte_array(mfrc522.uid.uidByte, mfrc522.uid.size);
 	Serial.println(data);
+	delay(500);
 }
 
 
