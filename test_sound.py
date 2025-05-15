@@ -18,7 +18,7 @@ def play_note(note):
         raise ValueError(f"play_note, Error: {file_path} not found!")
 
 
-#from songs import songs
+from songs import songs
 
 def play_song(song_name):
     print(f"[INFO] Playing song: {song_name}")
@@ -34,5 +34,4 @@ if os.path.exists(file_path):
     pygame.mixer.Sound(file_path).play()
     time.sleep(2)
 play_note("C4")
-
-#play_song('HBD')
+play_song('HBD')
