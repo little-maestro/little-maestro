@@ -2,13 +2,12 @@
 import time
 import pygame
 import os
-
+os.chdir("/home/prim/little-maestro")
 from songs import songs
 
 # Sound setup
 # Initialize pygame mixer
 pygame.mixer.init()
-
 
 try:
     import serial
@@ -36,6 +35,7 @@ tempo = 0.5
 instrument = ["piano", "guitar", "violin", "flute"]
 instrument_index = 0
 current_instrument = instrument[instrument_index]
+level_to_color = ["Green","Yellow","Red"]
 
 led_name_to_id = {
     "piano": 1,
@@ -63,7 +63,7 @@ led_name_to_id = {
 def play_note(note):
     file_name = f"{note}.mp3"
     instrument_folder = current_instrument + "_directory"
-    file_path = os.path.join(little_maestro,instrument_folder, file_name)
+    file_path = os.path.join("little_maestro",instrument_folder, file_name)
         
     if os.path.exists(file_path):
         pygame.mixer.Sound(file_path).play()
@@ -103,7 +103,9 @@ def check_sequence(song_name, note_index):
 
                 note = note_info[1]  # Get the note (e.g., "C")
                 # Play the corresponding note sound
+                led(note,level_to_color[level])
                 play_note(note)
+                led(note,"off")
 
                 # Check correctness
                 if note == songs[song_name][note_index]:
@@ -158,7 +160,6 @@ def led(led_name, color): # I for changing intruments, piano, guitar, violin, fl
 
 
 
-
 def detect_card():
     try:
         id, text = reader.read()
@@ -175,7 +176,7 @@ def detect_card():
 
 def freestyle():
     global current_instrument, instrument_index
-
+    led(current_instrument,"WHITE")
     try:
         arduino.write(b'check note\n')  # Ask Arduino for pressed note
         line = arduino.readline().decode('utf-8').strip()
@@ -185,8 +186,10 @@ def freestyle():
         
         elif line.startswith("Note"):
             note = line.split()[1]
+            led(note,"WHITE")
             play_note(note)
-        
+            led(note,"off")
+
         elif line == "I":
             led(current_instrument,"off")
             if instrument_index == 3:
@@ -221,8 +224,10 @@ def record():
             elif recording_note_line.startswith("Note"):
                 note = recording_note_line.split()[1]
                 recorded_song.append(note)
-                play_note(note) # included time.sleep(tempo)
-            
+                led(note,"WHITE")
+                play_note(note)
+                led(note,"off")
+
             elif recording_note_line == "I":
                 led(current_instrument,"off")
                 if instrument_index == 3:
@@ -249,7 +254,9 @@ def record():
 
         elif line.startswith("Note"):
             note = line.split()[1]
+            led(note,"WHITE")
             play_note(note)
+            led(note,"off")
         
         elif recording_note_line == "I":
             led(current_instrument,"off")
@@ -258,7 +265,7 @@ def record():
             else:
                 instrument_index += 1
             current_instrument = instrument[instrument_index]
-            led(current_instrument, "WHITE")
+            led(current_instrument, "BLUE")
             print(f"Change instrument to '{current_instrument}'")
 
         elif line == ("record_stop"):
@@ -275,68 +282,100 @@ def record():
     print("return to freestyle mode")
 
 def learning(song_name):
+    global level
+    level = 1
     print("[MODE] Learning Mode")
-
     if song_name in songs:
         print(f"[INFO] Learning {song_name}")
+        file_path = os.path.join(f"{song_name}-speech.mp3")
+        if os.path.exists(file_path):
+            pygame.mixer.Sound(file_path).play()
+            time.sleep(2)
 
-        # ======== LEVEL 1 ========
-        print('Level 1')
-        while True:
-            success=True
-            for i in range(len(songs[song_name])):
-                led_command = f"LED {i+1} GREEN\n"  # can use led(songs[song_name][i],"green") 
-                arduino.write(led_command.encode()) # ex. note A5 button A and UP will lit up
-                result=check_sequence(song_name, i)
-                if not result:
-                    print("[LEVEL 1] Wrong note, restarting level.")
-                    success = False
-                    break
-            if success:
-                print("[LEVEL 1] Complete! Moving to level 2.")
-                break
+        while level <= 3:
+
+            # ======== LEVEL 1 ========
+            if level == 1:
+                print('Level 1')
+                file_path = os.path.join(f"level-{level}.mp3")
+                if os.path.exists(file_path):
+                    pygame.mixer.Sound(file_path).play()
+                    time.sleep(2)
+                else:
+                    print(f"{file_path} not found")
+
+                success=True
+                while True:
+                    for i in range(len(songs[song_name])):
+                        led(songs[song_name][i+1],"GREEN")
+                        play_note(songs[song_name][i+1])
+                        led(songs[song_name][i+1],"off")
+                        result=check_sequence(song_name, i)
+                        if not result:
+                            success = False
+                            break
+                    if success:
+                        level = 2
+                        print("[LEVEL 1] Complete! Moving to level 2.")
+                        break
+                    if not success:
+                        print("[LEVEL 1] Wrong note, restarting level 1.")
+                        level = 1
+                        break
+
                 
-    #===== LEVEL 2 =====
-        play_song(song_name)
-        while True:
-            success = True
-            for i in range(len(songs[song_name])):
-                led_command = f"LED {i+1} BLUE\n"
-                arduino.write(led_command.encode())
-                result = check_sequence(song_name, i)
-                if not result:
-                    print("[LEVEL 2] Wrong note, restarting level.")
-                    success = False
-                    break
-            if success:
-                print("[LEVEL 2] Complete! Moving to level 3.")
-                break
+        #===== LEVEL 2 =====
+            if level == 2:
+                print('Level 2')
+                file_path = os.path.join(f"level-{level}.mp3")
+                if os.path.exists(file_path):
+                    pygame.mixer.Sound(file_path).play()
+                    time.sleep(2)
+                else:
+                    print(f"{file_path} not found")
+
+                success = True
+                while True:
+                    for i in range(len(songs[song_name])):
+                        led(songs[song_name][i+1],"Yellow")
+                        play_note(songs[song_name][i+1])
+                        led(songs[song_name][i+1],"off")
+                    for i in range(len(songs[song_name])):
+                        result = check_sequence(song_name, i)
+                        if not result:
+                            success = False
+                            break
+                    if success:
+                        level = 3
+                        print("[LEVEL 2] Complete! Moving to level 3.")
+                        break
+                    if not success:
+                        print("[LEVEL 2] Wrong note, restarting level 2.")
+                        level = 2
+                        break
     #===== LEVEL 3 =====
-        play_song(song_name)
-        while True:
-            success=True
-            for i in range(len(songs[song_name])):
-                result=check_sequence(song_name,i)
-                if not result:
-                    print("[LEVEL 3] Wrong note, restarting level.")
-                    success = False
-                    break
-            if success:
-                print("Congratulations")
-                print("remove song card to continue")
-                break
-        while True:
-            try:
-                id, text = reader.read()
+            if level == 3:
+                print('Level 3')
+                file_path = os.path.join(f"level-{level}.mp3")
+                if os.path.exists(file_path):
+                    pygame.mixer.Sound(file_path).play()
+                    time.sleep(2)
+                else:
+                    print(f"{file_path} not found")
 
-                if id == 0:
-                    print("enter freestyle mode")
-                    return
-        
-                time.sleep(0.1)
-
-            except Exception as e:
-                print(f"[ERROR] {e}")
-
-    else:
-        print("[ERROR] Invalid song detected")
+                success = True
+                play_song(song_name)
+                while True:
+                    for i in range(len(songs[song_name])):
+                        result = check_sequence(song_name, i)
+                        if not result:
+                            success = False
+                            break
+                    if success:
+                        level = 4
+                        print("[LEVEL 3] Congratulation! Learning mode Completed! enter freestyle mode")
+                        break
+                    if not success:
+                        print("[LEVEL 3] Wrong note, restarting level 2.")
+                        level = 2
+                        break
