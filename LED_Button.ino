@@ -10,10 +10,10 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 // Optional: map color names to RGB
 uint32_t getColor(String color) {
   color.toUpperCase();
-  if (color == "RED") return strip.Color(255, 0, 0);
-  if (color == "GREEN") return strip.Color(0, 255, 0);
+  if (color == "RED") return strip.Color(238, 43, 36);
+  if (color == "GREEN") return strip.Color(100, 255, 0);
   if (color == "BLUE") return strip.Color(0, 0, 255);
-  if (color == "YELLOW") return strip.Color(255, 255, 0);
+  if (color == "YELLOW") return strip.Color(255, 206, 0);
   if (color == "PURPLE") return strip.Color(128, 0, 128);
   if (color == "CYAN") return strip.Color(0, 255, 255);
   if (color == "WHITE") return strip.Color(255, 255, 255);
