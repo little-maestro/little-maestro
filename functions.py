@@ -60,6 +60,12 @@ led_name_to_id = {
     "I": 20
 }
 
+card_to_song = {
+    "64123d3d": "HBD",
+    "9438b949": "Jingle Bells",
+    "9449303d": "Canon",
+}
+
 def play_note(note):
     file_name = f"{note}.mp3"
     instrument_folder = current_instrument + "_directory"
