@@ -123,7 +123,7 @@ void detectNote() {
     }
     digitalWrite(rowPins[r], HIGH);  // Deactivate the current row
   }
-  delay(200);  // Debounce delay to prevent multiple readings
+  delay(500);  // Debounce delay to prevent multiple readings
 }
 
 void loop() {
