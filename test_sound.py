@@ -2,6 +2,7 @@
 import time
 import pygame
 import os
+pygame.mixer.init()
 
 def play_note(note):
     file_name = f"{note}.mp3"
