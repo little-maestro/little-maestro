@@ -7,7 +7,7 @@ pygame.mixer.init()
 def play_note(note):
     file_name = f"{note}.mp3"
     instrument_folder = "piano" + "_directory"
-    file_path = os.path.join("little-maestro",instrument_folder, file_name)
+    file_path = os.path.join(instrument_folder, file_name)
         
     if os.path.exists(file_path):
         pygame.mixer.Sound(file_path).play()
@@ -19,7 +19,7 @@ def play_note(note):
     
 
 level = 1
-file_path = os.path.join("little-maestro",f"level-{level}.mp3")
+file_path = os.path.join(f"level-{level}.mp3")
 if os.path.exists(file_path):
     pygame.mixer.Sound(file_path).play()
     time.sleep(2)
