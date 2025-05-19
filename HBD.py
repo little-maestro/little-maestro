@@ -150,9 +150,9 @@ def led(led_name, color): # I for changing intruments, piano, guitar, violin, fl
             # Add corresponding LEDs
             leds.append(led_name_to_id[pitch])
             if octave == '3':
-                leds.append(led_name_to_id("down"))
+                leds.append(led_name_to_id["down"])
             elif octave == '5':
-                leds.append(led_name_to_id("up")) #18 is led number
+                leds.append(led_name_to_id["up"]) #18 is led number
         
         # Send command if we have valid LED ids
         if leds:
