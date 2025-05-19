@@ -114,10 +114,10 @@ def check_sequence(song_name, note_index):
                 led(note,"off")
 
                 # Check correctness
-                if note == songs[song_name][note_index+1]:
+                if note == songs[song_name][note_index]:
                     print("[INFO] check_sequence, 'Correct'")
                     return True
-                elif line != songs[song_name][note_index+1]:
+                elif line != songs[song_name][note_index]:
                     print("[INFO] check_sequence, 'Incorrect'")
                     return False
                 
