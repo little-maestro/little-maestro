@@ -92,7 +92,7 @@ def play_note(note):
 
 def check_sequence(song_name, note_index):
     try:
-        print(f"[INFO] check_sequence, checking note {note_index + 1} in {song_name}, {songs[song_name][note_index]}")
+        print(f"[INFO] check_sequence, checking note {note_index} in {song_name}, {songs[song_name][note_index]}")
         while True:
             arduino1.write(b'check note\n')
             line = arduino1.readline().decode('utf-8').strip()
@@ -109,7 +109,7 @@ def check_sequence(song_name, note_index):
                 note = note_info[1]  # Get the note (e.g., "C")
                 print(note)
                 # Play the corresponding note sound
-                led(note,level_to_color[level])
+                led(note,level_to_color[level-1])
                 play_note(note)
                 led(note,"off")
 
@@ -137,9 +137,8 @@ def led(led_name, color): # I for changing intruments, piano, guitar, violin, fl
 
         else: 
             pitch = led_name[:-1]  # Extract note name, e.g., "C", "C#"
-            print(pitch)
             octave = led_name[-1]  # Extract octave digit
-            print(octave)
+
             if pitch not in led_name_to_id:
                 raise ValueError(f"Unknown pitch: '{led_name} -- {pitch}'")
             
@@ -164,8 +163,6 @@ def led(led_name, color): # I for changing intruments, piano, guitar, violin, fl
 
     except Exception as e:
         print(f"[ERROR] LED command failed for '{led_name}': {e}")
-
-
 
 def detect_card():
     try:
@@ -226,7 +223,7 @@ def record():
             recording_note_line = arduino1.readline().decode('utf-8').strip()
 
             if not recording_note_line:
-                time.sleep(0.1)
+                continue
 
             elif recording_note_line.startswith("Note"):
                 note = recording_note_line.split()[1]
@@ -257,7 +254,7 @@ def record():
         line = arduino1.readline().decode('utf-8').strip()
 
         if not line:
-            time.sleep(0.1)
+            continue
 
         elif line.startswith("Note"):
             note = line.split()[1]
@@ -315,8 +312,8 @@ def learning(song_name):
                 while True:
                     for i in range(len(songs[song_name])):
                         led(songs[song_name][i],"GREEN")
-                        play_note(songs[song_name][i])
                         result=check_sequence(song_name, i)
+                        time.sleep(0.1)
                         if not result:
                             success = False
                             led(songs[song_name][i],"off")
@@ -348,11 +345,9 @@ def learning(song_name):
                 success = True
                 while True:
                     for i in range(len(songs[song_name])):
-                        led(songs[song_name][i],"Yellow")
                         play_note(songs[song_name][i])
-                        led(songs[song_name][i],"off")
-                    for i in range(len(songs[song_name])):
-                        result = check_sequence(song_name, i)
+                        result=check_sequence(song_name, i)
+                        time.sleep(0.1)
                         if not result:
                             success = False
                             break
@@ -380,7 +375,9 @@ def learning(song_name):
 
                 success = True
                 for i in range(len(songs[song_name])):
-                    play_note(songs[song_name][i])
+                        led(songs[song_name][i],"Red")
+                        play_note(songs[song_name][i])
+                        led(songs[song_name][i],"off")
                 while True:
                     for i in range(len(songs[song_name])):
                         result = check_sequence(song_name, i)

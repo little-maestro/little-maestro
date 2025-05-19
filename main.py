@@ -109,7 +109,7 @@ def check_sequence(song_name, note_index):
                 note = note_info[1]  # Get the note (e.g., "C")
                 print(note)
                 # Play the corresponding note sound
-                led(note,level_to_color[level])
+                led(note,level_to_color[level-1])
                 play_note(note)
                 led(note,"off")
 
@@ -312,8 +312,8 @@ def learning(song_name):
                 while True:
                     for i in range(len(songs[song_name])):
                         led(songs[song_name][i],"GREEN")
-                        play_note(songs[song_name][i])
                         result=check_sequence(song_name, i)
+                        time.sleep(0.1)
                         if not result:
                             success = False
                             led(songs[song_name][i],"off")
@@ -345,11 +345,9 @@ def learning(song_name):
                 success = True
                 while True:
                     for i in range(len(songs[song_name])):
-                        led(songs[song_name][i],"Yellow")
                         play_note(songs[song_name][i])
-                        led(songs[song_name][i],"off")
-                    for i in range(len(songs[song_name])):
-                        result = check_sequence(song_name, i)
+                        result=check_sequence(song_name, i)
+                        time.sleep(0.1)
                         if not result:
                             success = False
                             break
@@ -377,7 +375,9 @@ def learning(song_name):
 
                 success = True
                 for i in range(len(songs[song_name])):
-                    play_note(songs[song_name][i])
+                        led(songs[song_name][i],"Red")
+                        play_note(songs[song_name][i])
+                        led(songs[song_name][i],"off")
                 while True:
                     for i in range(len(songs[song_name])):
                         result = check_sequence(song_name, i)
