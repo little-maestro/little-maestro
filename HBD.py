@@ -98,7 +98,6 @@ def check_sequence(song_name, note_index):
             line = arduino1.readline().decode('utf-8').strip()
 
             if not line:
-                time.sleep(0.1)
                 continue
 
             if line.startswith("Note"):
@@ -188,12 +187,8 @@ def freestyle():
     try:
         arduino1.write(b'check note\n')  # Ask Arduino for pressed note
         line = arduino1.readline().decode('utf-8').strip()
-
-        if not line:
-            time.sleep(0.1)
-            return
         
-        elif line == "record_stop":
+        if line == "record_stop":
             record()
         
         elif line.startswith("Note"):
@@ -212,7 +207,7 @@ def freestyle():
             led(current_instrument, "WHITE")
             print(f"[INFO] Change instrument to '{current_instrument}'")
         
-        else:
+        elif line:
             print(f"[ERROR] Unrecognized serial message: '{line}'")
 
     except Exception as e:
