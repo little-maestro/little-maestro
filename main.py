@@ -98,7 +98,6 @@ def check_sequence(song_name, note_index):
             line = arduino1.readline().decode('utf-8').strip()
 
             if not line:
-                time.sleep(0.1)
                 continue
 
             if line.startswith("Note"):
@@ -189,8 +188,7 @@ def freestyle():
         line = arduino1.readline().decode('utf-8').strip()
 
         if not line:
-            time.sleep(0.1)
-            return
+            continue
         
         elif line == "record_stop":
             record()
@@ -230,7 +228,7 @@ def record():
             recording_note_line = arduino1.readline().decode('utf-8').strip()
 
             if not recording_note_line:
-                time.sleep(0.1)
+                continue
 
             elif recording_note_line.startswith("Note"):
                 note = recording_note_line.split()[1]
@@ -261,7 +259,7 @@ def record():
         line = arduino1.readline().decode('utf-8').strip()
 
         if not line:
-            time.sleep(0.1)
+            continue
 
         elif line.startswith("Note"):
             note = line.split()[1]
@@ -405,7 +403,7 @@ def learning(song_name):
                         break
 
 #main loop
-led(current_instrument,)
+led(current_instrument,"white")
 try:
     while True:
         freestyle()
