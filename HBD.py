@@ -138,8 +138,9 @@ def led(led_name, color): # I for changing intruments, piano, guitar, violin, fl
 
         else: 
             pitch = led_name[:-1]  # Extract note name, e.g., "C", "C#"
+            print(pitch)
             octave = led_name[-1]  # Extract octave digit
-
+            print(octave)
             if pitch not in led_name_to_id:
                 raise ValueError(f"Unknown pitch: '{led_name} -- {pitch}'")
             
