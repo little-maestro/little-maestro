@@ -23,8 +23,8 @@ if serial:
         print("Not connected to an Arduino.")
 
 
-tempo = 0.5
-instrument = ["piano", "guitar", "violin", "flute"]
+tempo = 1
+instrument = ["piano", "xylophone", "violin", "flute"]
 instrument_index = 0
 current_instrument = instrument[instrument_index]
 
@@ -92,7 +92,7 @@ def play_note(note):
 
 def check_sequence(song_name, note_index):
     try:
-        print(f"[INFO] check_sequence, checking note {note_index + 1} in {song_name}, {songs[song_name][note_index]}")
+        print(f"[INFO] check_sequence, checking note {note_index} in {song_name}, {songs[song_name][note_index]}")
         while True:
             arduino1.write(b'check note\n')
             line = arduino1.readline().decode('utf-8').strip()
@@ -115,10 +115,10 @@ def check_sequence(song_name, note_index):
                 led(note,"off")
 
                 # Check correctness
-                if note == songs[song_name][note_index+1]:
+                if note == songs[song_name][note_index]:
                     print("[INFO] check_sequence, 'Correct'")
                     return True
-                elif line != songs[song_name][note_index+1]:
+                elif line != songs[song_name][note_index]:
                     print("[INFO] check_sequence, 'Incorrect'")
                     return False
                 
@@ -318,12 +318,12 @@ def learning(song_name):
                 success=True
                 while True:
                     for i in range(len(songs[song_name])):
-                        led(songs[song_name][i+1],"GREEN")
-                        play_note(songs[song_name][i+1])
-                        led(songs[song_name][i+1],"off")
+                        led(songs[song_name][i],"GREEN")
+                        play_note(songs[song_name][i])
                         result=check_sequence(song_name, i)
                         if not result:
                             success = False
+                            led(songs[song_name][i],"off")
                             break
                     if success:
                         level = 2
@@ -352,9 +352,9 @@ def learning(song_name):
                 success = True
                 while True:
                     for i in range(len(songs[song_name])):
-                        led(songs[song_name][i+1],"Yellow")
-                        play_note(songs[song_name][i+1])
-                        led(songs[song_name][i+1],"off")
+                        led(songs[song_name][i],"Yellow")
+                        play_note(songs[song_name][i])
+                        led(songs[song_name][i],"off")
                     for i in range(len(songs[song_name])):
                         result = check_sequence(song_name, i)
                         if not result:
@@ -384,7 +384,7 @@ def learning(song_name):
 
                 success = True
                 for i in range(len(songs[song_name])):
-                    play_note(songs[song_name][i+1])
+                    play_note(songs[song_name][i])
                 while True:
                     for i in range(len(songs[song_name])):
                         result = check_sequence(song_name, i)
@@ -405,10 +405,10 @@ def learning(song_name):
                         break
 
 #main loop
+led(current_instrument,)
 try:
     while True:
         freestyle()
         detect_card()
-        time.sleep(0.1)
 except KeyboardInterrupt:
     print("Exiting...")
