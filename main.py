@@ -131,7 +131,7 @@ def led(led_name, color): # I for changing intruments, piano, guitar, violin, fl
     leds = []
     try: 
         if led_name in instrument or led_name == 'I' or led_name == "record_stop":
-            leds.append(led_name_to_id(led_name))
+            leds.append(led_name_to_id[led_name])
 
         elif len(led_name) < 2:
             raise ValueError(f"led, Invalid note format: '{led_name}'")

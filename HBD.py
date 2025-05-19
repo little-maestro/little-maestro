@@ -131,7 +131,7 @@ def led(led_name, color): # I for changing intruments, piano, guitar, violin, fl
     leds = []
     try: 
         if led_name in instrument or led_name == 'I' or led_name == "record_stop":
-            leds.append(led_name_to_id(led_name))
+            leds.append(led_name_to_id[led_name])
 
         elif len(led_name) < 2:
             raise ValueError(f"led, Invalid note format: '{led_name}'")
@@ -318,12 +318,12 @@ def learning(song_name):
                 success=True
                 while True:
                     for i in range(len(songs[song_name])):
-                        led(songs[song_name][i+1],"GREEN")
-                        play_note(songs[song_name][i+1])
-                        led(songs[song_name][i+1],"off")
+                        led(songs[song_name][i],"GREEN")
+                        play_note(songs[song_name][i])
                         result=check_sequence(song_name, i)
                         if not result:
                             success = False
+                            led(songs[song_name][i],"off")
                             break
                     if success:
                         level = 2
@@ -352,9 +352,9 @@ def learning(song_name):
                 success = True
                 while True:
                     for i in range(len(songs[song_name])):
-                        led(songs[song_name][i+1],"Yellow")
-                        play_note(songs[song_name][i+1])
-                        led(songs[song_name][i+1],"off")
+                        led(songs[song_name][i],"Yellow")
+                        play_note(songs[song_name][i])
+                        led(songs[song_name][i],"off")
                     for i in range(len(songs[song_name])):
                         result = check_sequence(song_name, i)
                         if not result:
@@ -384,7 +384,7 @@ def learning(song_name):
 
                 success = True
                 for i in range(len(songs[song_name])):
-                    play_note(songs[song_name][i+1])
+                    play_note(songs[song_name][i])
                 while True:
                     for i in range(len(songs[song_name])):
                         result = check_sequence(song_name, i)
