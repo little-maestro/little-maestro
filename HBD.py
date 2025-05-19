@@ -24,7 +24,7 @@ if serial:
 
 
 tempo = 0.5
-instrument = ["piano", "guitar", "violin", "flute"]
+instrument = ["piano", "xylophone", "violin", "flute"]
 instrument_index = 0
 current_instrument = instrument[instrument_index]
 
