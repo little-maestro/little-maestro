@@ -24,7 +24,7 @@ if serial:
 
 
 tempo = 1
-instrument = ["piano", "xylophone", "violin", "flute"]
+instrument = ["piano", "xylo", "violin", "flute"]
 instrument_index = 0
 current_instrument = instrument[instrument_index]
 
@@ -163,8 +163,6 @@ def led(led_name, color): # I for changing intruments, piano, guitar, violin, fl
 
     except Exception as e:
         print(f"[ERROR] LED command failed for '{led_name}': {e}")
-
-
 
 def detect_card():
     try:
