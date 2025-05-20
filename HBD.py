@@ -2,7 +2,7 @@ import time
 import pygame
 pygame.mixer.init()
 import os
-os.chdir("/home/prim/little-maestro")
+os.chdir(".")
 
 try:
     import serial
@@ -109,7 +109,7 @@ def check_sequence(song_name, note_index):
                 note = note_info[1]  # Get the note (e.g., "C")
                 print(note)
                 # Play the corresponding note sound
-                led(note,level_to_color[level-1])
+                led(note, "WHITE")
                 play_note(note)
                 led(note,"off")
 
