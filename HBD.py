@@ -15,8 +15,8 @@ arduino2 = None
 if serial:
     try: 
         #check and update port number
-        arduino1 = serial.Serial('/dev/ttyUSB1', 9600, timeout=1) # Button
-        arduino2 = serial.Serial('/dev/ttyUSB0', 9600, timeout=1) # Card Reader
+        arduino1 = serial.Serial('/dev/serial/by-path/platform-70090000.xusb-usb-0:2.1:1.0-port0', 9600, timeout=1) # Button
+        arduino2 = serial.Serial('/dev/serial/by-path/platform-70090000.xusb-usb-0:2.3:1.0-port0', 9600, timeout=1) # Card Reader
         time.sleep(2)  # Give Arduino time to reset
         print("Connected to Arduino.")
     except serial.SerialException:
@@ -111,7 +111,7 @@ def check_sequence(song_name, note_index):
                 note = note_info[1]  # Get the note (e.g., "C")
                 print(note)
                 # Play the corresponding note sound
-                led(note,level_to_color[level-1])
+                led(note, "WHITE")
                 play_note(note)
                 led(note,"off")
 
