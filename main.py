@@ -183,7 +183,6 @@ def detect_card():
 
 def freestyle():
     global current_instrument, instrument_index
-    led(current_instrument,"WHITE")
     try:
         arduino1.write(b'check note\n')  # Ask Arduino for pressed note
         line = arduino1.readline().decode('utf-8').strip()
