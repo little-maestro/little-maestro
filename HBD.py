@@ -15,7 +15,7 @@ arduino2 = None
 if serial:
     try: 
         #check and update port number
-        arduino1 = serial.Serial('/dev/serial/by-path/platform-70090000.xusb-usb-0:2.1:1.0-port0', 9600, timeout=1) # Button
+        arduino1 = serial.Serial('/dev/serial/by-path/platform-70090000.xusb-usb-0:2.1.1:1.0-port0', 9600, timeout=1) # Button
         arduino2 = serial.Serial('/dev/serial/by-path/platform-70090000.xusb-usb-0:2.3:1.0-port0', 9600, timeout=1) # Card Reader
         time.sleep(2)  # Give Arduino time to reset
         print("Connected to Arduino.")
@@ -23,12 +23,12 @@ if serial:
         print("Not connected to an Arduino.")
 
 
-tempo = 1
-instrument = ["piano", "xylo", "violin", "flute"]
+tempo = 0.5
+instrument = ["piano", "xylophone", "violin", "flute"]
 instrument_index = 0
 current_instrument = instrument[instrument_index]
 
-songs = {
+songs = {               
         "HBD": ["G3", "G3", "A3","G3", "C4", "B3", "G3", "G3", "A3", "G3", "D4", "C4",
                 "G3", "G3", "G4", "E4", "C4", "B3", "A3", "F4", "F4", "E4", "C4", "D4", "C4"],
 
@@ -50,7 +50,7 @@ songs = {
 level_to_color = ["Green","Yellow","Red"]
 led_name_to_id = {
     "piano": 1,
-    "xylo": 2,
+    "guitar": 2,
     "violin": 3,
     "flute": 4,
     "C": 5,
@@ -77,8 +77,6 @@ card_to_song = {
     "9449303d": "Canon",
 }
 
-delayf = 0.1
-delayl = 0.05
 def play_note(note):
     file_name = f"{note}.mp3"
     instrument_folder = current_instrument + "_directory"
@@ -96,10 +94,10 @@ def check_sequence(song_name, note_index):
     try:
         print(f"[INFO] check_sequence, checking note {note_index} in {song_name}, {songs[song_name][note_index]}")
         while True:
+            arduino1.write(b'check note\n')
             line = arduino1.readline().decode('utf-8').strip()
 
             if not line:
-                time.sleep(delayl)
                 continue
 
             if line.startswith("Note"):
@@ -182,15 +180,13 @@ def detect_card():
 
 def freestyle():
     global current_instrument, instrument_index
+    led(current_instrument,"WHITE")
     try:
+        arduino1.write(b'check note\n')  # Ask Arduino for pressed note
         line = arduino1.readline().decode('utf-8').strip()
-
-        if not line:
-            time.sleep(delayf)
         
-        elif line == "record_stop":
+        if line == "record_stop":
             record()
-            time.sleep(0.5)
         
         elif line.startswith("Note"):
             note = line.split()[1]
@@ -207,9 +203,8 @@ def freestyle():
             current_instrument = instrument[instrument_index]
             led(current_instrument, "WHITE")
             print(f"[INFO] Change instrument to '{current_instrument}'")
-            time.sleep(0.5)
         
-        else:
+        elif line:
             print(f"[ERROR] Unrecognized serial message: '{line}'")
 
     except Exception as e:
@@ -224,10 +219,10 @@ def record():
         print("[INFO] Start recording")
         led("record_stop","red")
         while record:
+            arduino1.write(b'check note\n')  # Ask Arduino for pressed note
             recording_note_line = arduino1.readline().decode('utf-8').strip()
 
             if not recording_note_line:
-                time.sleep(delayf)
                 continue
 
             elif recording_note_line.startswith("Note"):
@@ -246,21 +241,19 @@ def record():
                 current_instrument = instrument[instrument_index]
                 led(current_instrument, "WHITE")
                 print(f"Change instrument to '{current_instrument}'")
-                time.sleep(0.5)
             
             elif recording_note_line == ("record_stop"):
                 record = False
                 print("[INFO] Stop recording")
                 led("record_stop","yellow") # indicates that there is a recorded song 
-                time.sleep(0.5)
 
             else:
                 print(f"[INFO] Unrecognized serial message: '{recording_note_line}'")
 
+        arduino1.write(b'check note\n')  # Ask Arduino for pressed note
         line = arduino1.readline().decode('utf-8').strip()
 
         if not line:
-            time.sleep(delayf)
             continue
 
         elif line.startswith("Note"):
@@ -278,13 +271,11 @@ def record():
             current_instrument = instrument[instrument_index]
             led(current_instrument, "BLUE")
             print(f"Change instrument to '{current_instrument}'")
-            time.sleep(0.5)
 
         elif line == ("record_stop"):
             playing = True
             print("[INFO] Start playing recorded song")
             led("record_stop","green")
-            time.sleep(0.5)
 
         else:
             print(f"[ERROR] record, Unrecognized serial message: '{line}'")
