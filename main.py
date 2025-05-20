@@ -15,8 +15,8 @@ arduino2 = None
 if serial:
     try: 
         #check and update port number
-        arduino1 = serial.Serial('/dev/ttyUSB0', 9600, timeout=1) # Button
-        arduino2 = serial.Serial('/dev/ttyUSB1', 9600, timeout=1) # Card Reader
+        arduino1 = serial.Serial('/dev/ttyUSB1', 9600, timeout=1) # Button
+        arduino2 = serial.Serial('/dev/ttyUSB0', 9600, timeout=1) # Card Reader
         time.sleep(2)  # Give Arduino time to reset
         print("Connected to Arduino.")
     except serial.SerialException:
@@ -187,7 +187,7 @@ def freestyle():
         line = arduino1.readline().decode('utf-8').strip()
 
         if not line:
-            time.sleep(0.05)
+            time.sleep(0.07)
         
         elif line == "record_stop":
             record()
@@ -229,7 +229,7 @@ def record():
             recording_note_line = arduino1.readline().decode('utf-8').strip()
 
             if not recording_note_line:
-                time.sleep(0.05)
+                time.sleep(0.07)
                 continue
 
             elif recording_note_line.startswith("Note"):
@@ -263,7 +263,7 @@ def record():
         line = arduino1.readline().decode('utf-8').strip()
 
         if not line:
-            time.sleep(0.05)
+            time.sleep(0.07)
             continue
 
         elif line.startswith("Note"):
