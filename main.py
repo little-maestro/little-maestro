@@ -77,6 +77,8 @@ card_to_song = {
     "9449303d": "Canon",
 }
 
+delayf = 0.1
+delayl = 0.05
 def play_note(note):
     file_name = f"{note}.mp3"
     instrument_folder = current_instrument + "_directory"
@@ -98,7 +100,7 @@ def check_sequence(song_name, note_index):
             line = arduino1.readline().decode('utf-8').strip()
 
             if not line:
-                time.sleep(0.05)
+                time.sleep(delayl)
                 continue
 
             if line.startswith("Note"):
@@ -187,7 +189,7 @@ def freestyle():
         line = arduino1.readline().decode('utf-8').strip()
 
         if not line:
-            time.sleep(0.07)
+            time.sleep(delayf)
         
         elif line == "record_stop":
             record()
@@ -229,7 +231,7 @@ def record():
             recording_note_line = arduino1.readline().decode('utf-8').strip()
 
             if not recording_note_line:
-                time.sleep(0.07)
+                time.sleep(delayf)
                 continue
 
             elif recording_note_line.startswith("Note"):
@@ -263,7 +265,7 @@ def record():
         line = arduino1.readline().decode('utf-8').strip()
 
         if not line:
-            time.sleep(0.07)
+            time.sleep(delayf)
             continue
 
         elif line.startswith("Note"):
@@ -281,7 +283,7 @@ def record():
             current_instrument = instrument[instrument_index]
             led(current_instrument, "BLUE")
             print(f"Change instrument to '{current_instrument}'")
-            time.sllep(0.5)
+            time.sleep(0.5)
 
         elif line == ("record_stop"):
             playing = True
