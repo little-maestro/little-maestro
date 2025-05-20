@@ -87,7 +87,7 @@ def play_note(note):
         
     if os.path.exists(file_path):
         pygame.mixer.Sound(file_path).play()
-        arduino2.write("jump".encode('utf-8'))
+        arduino2.write("jump\n".encode('utf-8'))
         print(f"[INFO] Playing: {current_instrument} - {note}")
         time.sleep(tempo)  # Adjust delay based on tempo
 
@@ -297,7 +297,7 @@ def record():
     print("return to freestyle mode")
 
 def learning(song_name):
-    arduino2.write(song_name.encode('utf-8'))
+    arduino2.write((song_name+"\n").encode('utf-8'))
     global level
     level = 1
     print("[MODE] Learning Mode")
@@ -313,7 +313,7 @@ def learning(song_name):
             # ======== LEVEL 1 ========
             if level == 1:
                 print('Level 1')
-                arduino2.write("level1".encode('utf-8'))
+                arduino2.write("level1\n".encode('utf-8'))
                 file_path = os.path.join(f"level-{level}.mp3")
                 if os.path.exists(file_path):
                     pygame.mixer.Sound(file_path).play()
@@ -338,7 +338,7 @@ def learning(song_name):
                     if not success:
                         print("[LEVEL 1] Wrong note, restarting level 1.")
                         file_path = os.path.join("wrong_sfx.mp3")
-                        arduino2.write("wrong".encode('utf-8'))
+                        arduino2.write("wrong\n".encode('utf-8'))
                         if os.path.exists(file_path):
                             pygame.mixer.Sound(file_path).play()
                             time.sleep(6)
@@ -350,7 +350,7 @@ def learning(song_name):
             if level == 2:
                 print('Level 2')
                 file_path = os.path.join(f"level-{level}.mp3")
-                arduino2.write("level2".encode('utf-8'))
+                arduino2.write("level2\n".encode('utf-8'))
                 if os.path.exists(file_path):
                     pygame.mixer.Sound(file_path).play()
                     time.sleep(2)
@@ -373,7 +373,7 @@ def learning(song_name):
                     if not success:
                         print("[LEVEL 2] Wrong note, restarting level 2.")
                         file_path = os.path.join("wrong_sfx.mp3")
-                        arduino2.write("wrong".encode('utf-8'))
+                        arduino2.write("wrong\n".encode('utf-8'))
                         if os.path.exists(file_path):
                             pygame.mixer.Sound(file_path).play()
                             time.sleep(6)
@@ -382,7 +382,7 @@ def learning(song_name):
     #===== LEVEL 3 =====
             if level == 3:
                 print('Level 3')
-                arduino2.write("level3".encode('utf-8'))
+                arduino2.write("level3\n".encode('utf-8'))
                 file_path = os.path.join(f"level-{level}.mp3")
                 if os.path.exists(file_path):
                     pygame.mixer.Sound(file_path).play()
@@ -403,13 +403,13 @@ def learning(song_name):
                             break
                     if success:
                         level = 4
-                        arduino2.write("win".encode('utf-8'))
+                        arduino2.write("win\n".encode('utf-8'))
                         print("[LEVEL 3] Congratulation! Learning mode Completed! enter freestyle mode")
                         time.sleep(3.6)
                         break
                     if not success:
                         print("[LEVEL 3] Wrong note, restarting level 2.")
-                        arduino2.write("wrong".encode('utf-8'))
+                        arduino2.write("wrong\n".encode('utf-8'))
                         file_path = os.path.join("wrong_sfx.mp3")
                         if os.path.exists(file_path):
                             pygame.mixer.Sound(file_path).play()
