@@ -123,21 +123,18 @@ void detectNote() {
     }
     digitalWrite(rowPins[r], HIGH);  // Deactivate the current row
   }
-  delay(500);  // Debounce delay to prevent multiple readings
+  delay(100);  // Debounce delay to prevent multiple readings
 }
 
 void loop() {
+  detectNote();
   // Read and process serial input
   if (Serial.available()) {
     String input = Serial.readStringUntil('\n');
     input.trim();
-
     // Example: LED 5 GREEN or LED 1,3,5 BLUE
     if (input.startsWith("LED")) {
       writeLED(input);
-    }
-    if (input == "check note") {
-      detectNote();
     }
   }
 }

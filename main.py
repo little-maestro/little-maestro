@@ -96,7 +96,6 @@ def check_sequence(song_name, note_index):
     try:
         print(f"[INFO] check_sequence, checking note {note_index} in {song_name}, {songs[song_name][note_index]}")
         while True:
-            arduino1.write(b'check note\n')
             line = arduino1.readline().decode('utf-8').strip()
 
             if not line:
@@ -184,7 +183,6 @@ def detect_card():
 def freestyle():
     global current_instrument, instrument_index
     try:
-        arduino1.write(b'check note\n')  # Ask Arduino for pressed note
         line = arduino1.readline().decode('utf-8').strip()
 
         if not line:
@@ -226,7 +224,6 @@ def record():
         print("[INFO] Start recording")
         led("record_stop","red")
         while record:
-            arduino1.write(b'check note\n')  # Ask Arduino for pressed note
             recording_note_line = arduino1.readline().decode('utf-8').strip()
 
             if not recording_note_line:
@@ -260,7 +257,6 @@ def record():
             else:
                 print(f"[INFO] Unrecognized serial message: '{recording_note_line}'")
 
-        arduino1.write(b'check note\n')  # Ask Arduino for pressed note
         line = arduino1.readline().decode('utf-8').strip()
 
         if not line:
