@@ -50,7 +50,7 @@ songs = {
 level_to_color = ["Green","Yellow","Red"]
 led_name_to_id = {
     "piano": 1,
-    "guitar": 2,
+    "xylo": 2,
     "violin": 3,
     "flute": 4,
     "C": 5,
