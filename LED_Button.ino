@@ -1,3 +1,4 @@
+
 #include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
 
@@ -112,14 +113,14 @@ void detectNote() {
           // Send the note information
           Serial.print("Note ");
           Serial.println(note);
-          delay(200)
+          delay(200);
         } else if (r == 3) {  // Row 4 functionality (special buttons)
           if (c == 0) {
             Serial.println("record_stop"); // For future function (if any)
-            delay(200)
+            delay(200);
           } else if (c == 3) {
             Serial.println("I"); // Change Instrument
-            delay(200)
+            delay(200);
           }
         }
       }
